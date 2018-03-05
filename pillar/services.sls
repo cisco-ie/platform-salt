@@ -89,7 +89,7 @@ data-service:
   release_version: develop
 
 hdfs_cleaner:
-  release_version: develop
+  release_version: PNDA-4415
 
 platform_testing:
   release_directory: /opt/pnda
