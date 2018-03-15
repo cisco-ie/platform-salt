@@ -316,6 +316,28 @@ BLUEPRINT = r'''{
             }
         },
         {
+            "knox-env" : {
+                "properties" : {
+                    "knox_group" : "knox",
+                    "knox_pid_dir" : "/var/run/knox",
+                    "knox_user" : "knox"
+                }
+            }
+        },
+        {
+            "gateway-site" : {
+                "properties" : {
+                    "gateway.gateway.conf.dir" : "deployments",
+                    "gateway.hadoop.kerberos.secured" : "false",
+                    "gateway.path" : "gateway",
+                    "gateway.port" : "8443",
+                    "java.security.auth.login.config" : "/etc/knox/conf/krb5JAASLogin.conf",
+                    "java.security.krb5.conf" : "/etc/knox/conf/krb5.conf",
+                    "sun.security.krb5.debug" : "true"
+                }
+            }
+        },
+        {
             "hbase-site" : {
                 "properties" : {
                     "zookeeper.session.timeout" : "300000",
@@ -564,6 +586,9 @@ BLUEPRINT = r'''{
                 },
                 {
                 "name" : "SPARK2_CLIENT"
+                },
+                {
+                "name" : "KNOX_GATEWAY"
                 }
             ],
             "cardinality" : "1+"
