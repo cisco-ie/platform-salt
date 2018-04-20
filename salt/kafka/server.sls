@@ -54,7 +54,7 @@ kafka-server-conf:
       inter_broker_listener: {{ inter_broker_listener }}
       offsets_topic_replication_factor: {{ offsets_topic_replication_factor }}
 
-{% if grains['os'] == 'Ubuntu' %}
+{% if grains['os'] == 'Ubuntu' and grains['osrelease_info'][0] <= 14 %}
 kafka-copy_kafka_service:
   file.managed:
     - source: salt://kafka/templates/kafka.init.conf.tpl
@@ -65,7 +65,7 @@ kafka-copy_kafka_service:
       workdir: {{ kafka.prefix }}
       mem_xmx: {{ flavor_cfg.kafka_heapsize }}
       mem_xms: {{ flavor_cfg.kafka_heapsize }}
-{% elif grains['os'] in ('RedHat', 'CentOS') %}
+{% elif grains['os'] in ('RedHat', 'CentOS') or grains['oscodename'] in ('xenial') %}
 kafka-copy_script:
   file.managed:
     - source: salt://kafka/templates/kafka-start.sh.tpl

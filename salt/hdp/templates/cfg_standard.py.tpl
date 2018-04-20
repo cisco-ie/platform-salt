@@ -289,6 +289,7 @@ BLUEPRINT = r'''{
                 "properties" : {
                     "oozie.service.JPAService.jdbc.password" : "oozie",
                     "oozie.service.JPAService.jdbc.username" : "oozie",
+                    "hadoop.security.credential.provider.path" : "jceks://file/etc/oozie/conf/oozie-site.jceks",
                     "oozie.service.JPAService.jdbc.url" : "jdbc:mysql://%(cluster_name)s-hadoop-mgr-4/oozie",
                     "oozie.service.JPAService.jdbc.driver" : "com.mysql.jdbc.Driver",
                     "oozie.authentication.type" : "simple",

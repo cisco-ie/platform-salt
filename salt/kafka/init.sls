@@ -15,8 +15,6 @@ kafka-kafka:
   user.present:
     - name: kafka
     - gid_from_name: True
-    - groups:
-      - kafka
 
 kafka-install-kafka-dist:
   cmd.run:

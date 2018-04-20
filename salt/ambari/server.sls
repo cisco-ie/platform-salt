@@ -20,7 +20,10 @@ ambari-server-user:
     - groups:
       - root
 
+# mysql_user module is broken with the version of salt used here for mysql 5.7
+# this automation will be handled in a separate step by Ansible
 ambari-server-init_mysql_user_permissions:
+{% if pillar['mysql-server']['package-name'] not in ('mysql-server-5.7') %}
   mysql_user.present:
     - host: {{ cmdb_host }}
     - host: localhost
@@ -45,6 +48,7 @@ ambari-server-init_mysql_user_permissions:
     - connection_host: {{ cmdb_host }}
     - connection_user: root
     - connection_pass: {{ mysql_root_password }}
+{% endif %}
   cmd.run:
     - name: 'mysql -h {{ cmdb_host }} -uroot -p{{ mysql_root_password }} {{ cmdb_database }} < /var/lib/ambari-server/resources/Ambari-DDL-MySQL-CREATE.sql && echo done > /opt/pnda/.ambari-sql-progress'
     - require:
@@ -65,6 +69,7 @@ ambari-server-properties:
     - mode: 0644
     - defaults:
       java_version_name: {{ pillar['java']['version_name'] }}
+      os_name_short: {{ grains['os'].lower() + grains['osrelease_info'][0]|string }}
 
 ambari-server-log4j:
   file.managed:

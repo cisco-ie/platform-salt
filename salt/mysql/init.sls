@@ -17,7 +17,20 @@ mysql-setup-mysql:
     - data:
         'mysql-server/root_password': {'type': 'password', 'value': '{{ mysql_root_password }}'}
         'mysql-server/root_password_again': {'type': 'password', 'value': '{{ mysql_root_password }}'}
+        'percona-server-server/root_password': {'type': 'password', 'value': '{{ mysql_root_password }}'}
+        'percona-server-server/root_password_again': {'type': 'password', 'value': '{{ mysql_root_password }}'}
         'mysql-server/start_on_boot': {'type': 'boolean', 'value': 'true'}
+    - require:
+      - pkg: mysql-install-debconf-utils
+
+# TODO: use variable for server version
+mysql-setup-percona:
+  debconf.set:
+    - name: percona-server-server-5.6
+    - data:
+        'percona-server-server/root_password': {'type': 'password', 'value': '{{ mysql_root_password }}'}
+        'percona-server-server/root_password_again': {'type': 'password', 'value': '{{ mysql_root_password }}'}
+        'percona-server-server-5.6/start_on_boot': {'type': 'boolean', 'value': 'true'}
     - require:
       - pkg: mysql-install-debconf-utils
 
@@ -26,7 +39,9 @@ mysql-setup-mysql:
 mysql-install-python-library:
   pkg.installed:
     - name: {{ pillar['python-mysqldb']['package-name'] }}
+{% if grains['oscodename'] not in ('xenial') %}
     - version: {{ pillar['python-mysqldb']['version'] }}
+{% endif %}
     - reload_modules: True
 
 mysql-install-mysql-server:
@@ -36,7 +51,9 @@ mysql-install-mysql-server:
       - debconf: mysql-setup-mysql
 {% endif %}
     - name: {{ pillar['mysql-server']['package-name'] }}
+{% if grains['oscodename'] not in ('xenial') %}
     - version: {{ pillar['mysql-server']['version'] }}
+{% endif %}
 
 mysql-update-mysql-configuration:
   file.replace:

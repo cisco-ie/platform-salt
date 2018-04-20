@@ -52,10 +52,10 @@ package-repository-copy_configuration:
 
 package-repository-copy_service:
   file.managed:
-{% if grains['os'] == 'Ubuntu' %}
+{% if grains['os'] == 'Ubuntu' and grains['osrelease_info'][0] <= 14 %}
     - name: /etc/init/package-repository.conf
     - source: salt://package-repository/templates/package-repository.conf.tpl
-{% elif grains['os'] in ('RedHat', 'CentOS') %}
+{% elif grains['os'] in ('RedHat', 'CentOS') or grains['oscodename'] in ('xenial') %}
     - name: /usr/lib/systemd/system/package-repository.service
     - source: salt://package-repository/templates/package-repository.service.tpl
 {% endif %}    
@@ -75,7 +75,7 @@ package-repository-create_fs_location_path:
 
 {% endif %}
 
-{% if grains['os'] in ('RedHat', 'CentOS') %}
+{% if grains['os'] in ('RedHat', 'CentOS') or grains['oscodename'] in ('xenial') %}
 package-repository-systemctl_reload:
   cmd.run:
     - name: /bin/systemctl daemon-reload; /bin/systemctl enable package-repository

@@ -200,10 +200,10 @@ jupyter-copy_scala_spark_kernel:
 
 livy-conf_service:
   file.managed:
-{% if grains['os'] == 'Ubuntu' %}
+{% if grains['os'] == 'Ubuntu' and grains['osrelease_info'][0] <= 14 %}
     - name: /etc/init/livy.conf
     - source: salt://jupyter/templates/livy.conf.tpl
-{% elif grains['os'] in ('RedHat', 'CentOS') %}
+{% elif grains['os'] in ('RedHat', 'CentOS') or grains['oscodename'] in ('xenial') %}
     - name: /usr/lib/systemd/system/livy.service
     - source: salt://jupyter/templates/livy.service.tpl
 {% endif %}
@@ -214,7 +214,7 @@ livy-conf_service:
         spark_home: {{ spark_home }}
         hadoop_conf_dir: {{ hadoop_conf_dir }}
 
-{% if grains['os'] in ('RedHat', 'CentOS') %}
+{% if grains['os'] in ('RedHat', 'CentOS') or grains['oscodename'] in ('xenial') %}
 livy-systemctl_reload:
   cmd.run:
     - name: /bin/systemctl daemon-reload; /bin/systemctl enable livy

@@ -86,10 +86,10 @@ console-backend-install_backend_app_dependencies:
 # Create service script from template
 console-backend-copy_service:
   file.managed:
-{% if grains['os'] == 'Ubuntu' %}
+{% if grains['os'] == 'Ubuntu' and grains['osrelease_info'][0] <= 14 %}
     - name: /etc/init/data-manager.conf
     - source: salt://console-backend/templates/backend_nodejs_app.conf.tpl
-{% elif grains['os'] in ('RedHat', 'CentOS') %}
+{% elif grains['os'] in ('RedHat', 'CentOS') or grains['oscodename'] in ('xenial') %}
     - name: /usr/lib/systemd/system/data-manager.service
     - source: salt://console-backend/templates/backend_nodejs_app.service.tpl
 {% endif %}
@@ -99,7 +99,7 @@ console-backend-copy_service:
         backend_app_port: {{ backend_app_port }}
         app_dir: {{ app_dir }}
 
-{% if grains['os'] in ('RedHat', 'CentOS') %}
+{% if grains['os'] in ('RedHat', 'CentOS') or grains['oscodename'] in ('xenial') %}
 console-backend-data-manager-systemctl_reload:
   cmd.run:
     - name: /bin/systemctl daemon-reload; /bin/systemctl enable data-manager

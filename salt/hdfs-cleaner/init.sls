@@ -72,10 +72,10 @@ hdfs-cleaner-copy_config:
 
 hdfs-cleaner-copy_service:
   file.managed:
-{% if grains['os'] == 'Ubuntu' %}
+{% if grains['os'] == 'Ubuntu' and grains['osrelease_info'][0] <= 14 %}
     - name: /etc/init/hdfs-cleaner.conf
     - source: salt://hdfs-cleaner/templates/hdfs-cleaner.conf.tpl
-{% elif grains['os'] in ('RedHat', 'CentOS') %}
+{% elif grains['os'] in ('RedHat', 'CentOS') or grains['oscodename'] in ('xenial') %}
     - name: /usr/lib/systemd/system/hdfs-cleaner.service
     - source: salt://hdfs-cleaner/templates/hdfs-cleaner.service.tpl
 {%- endif %}
@@ -83,7 +83,7 @@ hdfs-cleaner-copy_service:
     - defaults:
         install_dir: {{ install_dir }}
 
-{% if grains['os'] in ('RedHat', 'CentOS') %}
+{% if grains['os'] in ('RedHat', 'CentOS') or grains['oscodename'] in ('xenial') %}
 hdfs-cleaner-systemctl_reload:
   cmd.run:
     - name: /bin/systemctl daemon-reload
@@ -92,9 +92,9 @@ hdfs-cleaner-systemctl_reload:
 hdfs-cleaner-add_crontab_entry:
   cron.present:
     - identifier: HDFS-CLEANER
-{% if grains['os'] == 'Ubuntu' %}
+{% if grains['os'] == 'Ubuntu' and grains['osrelease_info'][0] <= 14 %}
     - name: /sbin/start hdfs-cleaner
-{% elif grains['os'] in ('RedHat', 'CentOS') %}
+{% elif grains['os'] in ('RedHat', 'CentOS') or grains['oscodename'] in ('xenial') %}
     - name: /bin/systemctl start hdfs-cleaner
 {%- endif %}
     - user: root

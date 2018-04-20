@@ -57,8 +57,12 @@ libz:
 libzmq:
   package-name: libzmq-dev
 mysql-server:
+{% if grains['osrelease_info'][0] <= 14 %}
   package-name: mysql-server-5.6
   version: "5.6.33-0ubuntu0.14.04.1"
+{% else %}
+  package-name: percona-server-server-5.6
+{% endif %}
   configuration_file: /etc/mysql/my.cnf
   service_name: mysql
 nginx:

@@ -17,7 +17,9 @@ include:
 console-backend-install_data_logger_redis:
   pkg.installed:
     - name: {{ pillar['redis-server']['package-name'] }}
+{% if grains['oscodename'] not in ('xenial') %}
     - version: {{ pillar['redis-server']['version'] }}
+{% endif %}
     - ignore_epoch: True
 
 console-backend-dl-and-extract:
@@ -56,10 +58,10 @@ console-backend-install_backend_data_logger_app_dependencies:
 # Create service script from template
 console-backend-copy_data_logger_service:
   file.managed:
-{% if grains['os'] == 'Ubuntu' %}
+{% if grains['os'] == 'Ubuntu' and grains['osrelease_info'][0] <= 14 %}
     - name: /etc/init/data-logger.conf
     - source: salt://console-backend/templates/backend_nodejs_app.conf.tpl
-{% elif grains['os'] in ('RedHat', 'CentOS') %}
+{% elif grains['os'] in ('RedHat', 'CentOS') or grains['oscodename'] in ('xenial') %}
     - name: /usr/lib/systemd/system/data-logger.service
     - source: salt://console-backend/templates/backend_nodejs_app.service.tpl
 {% endif %}
@@ -74,6 +76,12 @@ console-backend-copy_data_logger_service:
 console-backend-data-logger-systemctl_reload:
   cmd.run:
     - name: /bin/systemctl daemon-reload; /bin/systemctl enable data-logger; /bin/systemctl enable redis
+{%- endif %}
+
+{% if grains['oscodename'] in ('xenial') %}
+console-backend-data-logger-systemctl_reload:
+  cmd.run:
+    - name: /bin/systemctl daemon-reload; /bin/systemctl enable data-logger
 {%- endif %}
 
 console-backend-redis_start:

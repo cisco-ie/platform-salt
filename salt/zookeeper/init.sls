@@ -96,7 +96,7 @@ zookeeper-link:
     - require:
       - archive: zookeeper-dl-and-extract
 
-{% if grains['os'] == 'Ubuntu' %}
+{% if grains['os'] == 'Ubuntu' and grains['osrelease_info'][0] <= 14 %}
 zookeeper-service:
   file.managed:
     - name: /etc/init/zookeeper.conf
@@ -107,7 +107,7 @@ zookeeper-service:
     - mode: 644
     - require:
       - file: zookeeper-data-dir
-{% elif grains['os'] in ('RedHat', 'CentOS') %}
+{% elif grains['os'] in ('RedHat', 'CentOS') or grains['oscodename'] in ('xenial') %}
 zookeeper-service_startpre:
     file.managed:
       - name: {{ install_dir }}/zookeeper-{{ zookeeper_version }}/bin/zookeeper-service-startpre.sh
@@ -142,7 +142,7 @@ zookeeper-systemd:
       - file: zookeeper-data-dir
 {% endif %}
 
-{% if grains['os'] in ('RedHat', 'CentOS') %}
+{% if grains['os'] in ('RedHat', 'CentOS') or grains['oscodename'] in ('xenial') %}
 zookeeper-systemctl_reload:
   cmd.run:
     - name: /bin/systemctl daemon-reload; /bin/systemctl enable zookeeper

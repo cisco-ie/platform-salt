@@ -14,7 +14,9 @@ include:
 install-redis_server:
   pkg.installed:
     - name: {{ pillar['redis-server']['package-name'] }}
+{% if grains['oscodename'] not in ('xenial') %}
     - version: {{ pillar['redis-server']['version'] }}
+{% endif %}
     - ignore_epoch: True
 
 change-bind-address_redis:
@@ -82,10 +84,10 @@ logserver-create_log_folder:
 
 logserver-copy_service:
   file.managed:
-{% if grains['os'] == 'Ubuntu' %}
+{% if grains['os'] == 'Ubuntu' and grains['osrelease_info'][0] <= 14 %}
     - name: /etc/init/logserver.conf
     - source: salt://logserver/logserver_templates/logstash.conf.tpl
-{% elif grains['os'] in ('RedHat', 'CentOS') %}
+{% elif grains['os'] in ('RedHat', 'CentOS') or grains['oscodename'] in ('xenial') %}
     - name: /usr/lib/systemd/system/logserver.service
     - source: salt://logserver/logserver_templates/logstash.service.tpl
 {% endif %}
@@ -93,7 +95,7 @@ logserver-copy_service:
     - defaults:
         install_dir: {{ install_dir }}
 
-{% if grains['os'] in ('RedHat', 'CentOS') %}
+{% if grains['os'] in ('RedHat', 'CentOS') or grains['oscodename'] in ('xenial') %}
 logserver-systemctl_reload:
   cmd.run:
     - name: /bin/systemctl daemon-reload; /bin/systemctl enable logserver

@@ -168,10 +168,12 @@ def create_new_cluster(nodes, cluster_name, hdp_core_stack_repo, hdp_utils_stack
 
     if 'ubuntu14' in hdp_core_stack_repo:
         hdp_os_type = 'ubuntu14'
+    elif 'ubuntu16' in hdp_core_stack_repo:
+        hdp_os_type = 'ubuntu16'
     elif 'centos7' in hdp_core_stack_repo:
         hdp_os_type = 'redhat7'
     else:
-        exit_setup('Expected ubuntu14 or centos7 in hdp_core_stack_repo but found: %s' % hdp_core_stack_repo)
+        exit_setup('Expected ubuntu14 or ubuntu16 or centos7 in hdp_core_stack_repo but found: %s' % hdp_core_stack_repo)
 
     repo_definition = {
         "RepositoryVersions" : {

@@ -146,10 +146,10 @@ gobblin-create_gobblin_logs_file:
 
 gobblin-install_gobblin_service_script:
   file.managed:
-{% if grains['os'] == 'Ubuntu' %}
+{% if grains['os'] == 'Ubuntu' and grains['osrelease_info'][0] <= 14 %}
     - name: /etc/init/gobblin.conf
     - source: salt://gobblin/templates/gobblin.conf.tpl
-{% elif grains['os'] in ('RedHat', 'CentOS') %}
+{% elif grains['os'] in ('RedHat', 'CentOS') or grains['oscodename'] in ('xenial') %}
     - name: /usr/lib/systemd/system/gobblin.service
     - source: salt://gobblin/templates/gobblin.service.tpl
 {%- endif %}
@@ -164,10 +164,10 @@ gobblin-install_gobblin_service_script:
 {% if perform_compaction %}
 gobblin-install_gobblin_compact_service_script:
   file.managed:
-{% if grains['os'] == 'Ubuntu' %}
+{% if grains['os'] == 'Ubuntu' and grains['osrelease_info'][0] <= 14 %}
     - name: /etc/init/gobblin-compact.conf
     - source: salt://gobblin/templates/gobblin-compact.conf.tpl
-{% elif grains['os'] in ('RedHat', 'CentOS') %}
+{% elif grains['os'] in ('RedHat', 'CentOS') or grains['oscodename'] in ('xenial') %}
     - name: /usr/lib/systemd/system/gobblin-compact.service
     - source: salt://gobblin/templates/gobblin-compact.service.tpl
 {%- endif %}
@@ -180,7 +180,7 @@ gobblin-install_gobblin_compact_service_script:
       hadoop_home_bin: {{ hadoop_home_bin }}
 {%- endif %}
 
-{% if grains['os'] in ('RedHat', 'CentOS') %}
+{% if grains['os'] in ('RedHat', 'CentOS') or grains['oscodename'] in ('xenial') %}
 gobblin-systemctl_reload:
   cmd.run:
     - name: /bin/systemctl daemon-reload
@@ -189,9 +189,9 @@ gobblin-systemctl_reload:
 gobblin-add_gobblin_crontab_entry:
   cron.present:
     - identifier: GOBBLIN
-{% if grains['os'] == 'Ubuntu' %}
+{% if grains['os'] == 'Ubuntu' and grains['osrelease_info'][0] <= 14 %}
     - name: /sbin/start gobblin
-{% elif grains['os'] in ('RedHat', 'CentOS') %}
+{% elif grains['os'] in ('RedHat', 'CentOS') or grains['oscodename'] in ('xenial') %}
     - name: /bin/systemctl start gobblin
 {%- endif %}
     - user: root
@@ -203,7 +203,7 @@ gobblin-add_gobblin_crontab_entry:
 gobblin-add_gobblin_compact_crontab_entry:
   cron.present:
     - identifier: GOBBLIN-COMPACT
-{% if grains['os'] == 'Ubuntu' %}
+{% if grains['os'] == 'Ubuntu' and grains['osrelease_info'][0] <= 14 %}
     - name: /sbin/start gobblin-compact
 {% elif grains['os'] == 'RedHat' %}
     - name: /bin/systemctl start gobblin-compact

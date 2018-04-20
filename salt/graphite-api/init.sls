@@ -59,9 +59,9 @@ graphite-api-carbon-enable-and-start:
 
 graphite-api-install-graphite:
   pkg.installed:
-{% if grains['os'] in ('RedHat', 'CentOS') %}
+{% if grains['os'] in ('RedHat', 'CentOS') or grains['oscodename'] in ('xenial') %}
     - name: graphite-api
-{% elif grains['os'] == 'Ubuntu' %}
+{% elif grains['os'] == 'Ubuntu' and grains['osrelease_info'][0] <= 14 %}
     - sources:
       - graphite-api: {{ graphite_api_deb_package }}
 {% endif %}
@@ -78,6 +78,22 @@ graphite-api-configure:
     - source: salt://graphite-api/files/graphite-api.yaml.redhat
 {% elif grains['os'] == 'Ubuntu' %}
     - source: salt://graphite-api/files/graphite-api.yaml.debian
+{% endif %}
+
+{% if grains['os'] == 'Ubuntu' and grains['osrelease_info'][0] > 14 %}
+graphite-api-socket:
+  file.managed:
+    - name: /etc/systemd/system/graphite-api.socket
+    - source: salt://graphite-api/files/graphite-api.socket
+
+graphite-api-service:
+  file.managed:
+    - name: /etc/systemd/system/graphite-api.service
+    - source: salt://graphite-api/files/graphite-api.service
+
+graphite-api-systemctl_reload:
+  cmd.run:
+    - name: /bin/systemctl daemon-reload; /bin/systemctl enable graphite-api
 {% endif %}
 
 graphite-api-enable-and-start:

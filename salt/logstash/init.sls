@@ -87,11 +87,11 @@ logstash-copy_configuration_logstash:
       list_of_ingest: {{ es_ingest_hostnames }}
       input_dir: {{logstash_inputdir}}/*
 
-{% if grains['os'] == 'Ubuntu' %}
+{% if grains['os'] == 'Ubuntu' and grains['osrelease_info'][0] <= 14 %}
 /etc/init/logstash.conf:
   file.managed:
     - source: salt://logstash/templates/logstash.init.conf.tpl
-{% elif grains['os'] in ('RedHat', 'CentOS') %}
+{% elif grains['os'] in ('RedHat', 'CentOS') or grains['oscodename'] in ('xenial') %}
 /usr/lib/systemd/system/logstash.service:
   file.managed:
     - source: salt://logstash/templates/logstash.service.tpl  
@@ -104,7 +104,7 @@ logstash-copy_configuration_logstash:
       confpath: {{logstash_confdir }}/logstash.conf
       datadir: {{logstash_datadir}}
 
-{% if grains['os'] in ('RedHat', 'CentOS') %}
+{% if grains['os'] in ('RedHat', 'CentOS') or grains['oscodename'] in ('xenial') %}
 logstash-systemctl_reload:
   cmd.run:
     - name: /bin/systemctl daemon-reload; /bin/systemctl enable logstash

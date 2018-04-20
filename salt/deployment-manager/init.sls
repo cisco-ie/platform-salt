@@ -88,10 +88,10 @@ deployment-manager-copy_configuration:
 
 deployment-manager-copy_service:
   file.managed:
-{% if grains['os'] == 'Ubuntu' %}
+{% if grains['os'] == 'Ubuntu' and grains['osrelease_info'][0] <= 14 %}
     - name: /etc/init/deployment-manager.conf
     - source: salt://deployment-manager/templates/deployment-manager.conf.tpl
-{% elif grains['os'] in ('RedHat', 'CentOS') %}
+{% elif grains['os'] in ('RedHat', 'CentOS') or grains['oscodename'] in ('xenial') %}
     - name: /usr/lib/systemd/system/deployment-manager.service
     - source: salt://deployment-manager/templates/deployment-manager.service.tpl
 {% endif %}
@@ -101,10 +101,10 @@ deployment-manager-copy_service:
 
 dm-application-summary-copy_service:
   file.managed:
-{% if grains['os'] == 'Ubuntu' %}
+{% if grains['os'] == 'Ubuntu' and grains['osrelease_info'][0] <= 14 %}
     - name: /etc/init/dm-application-summary.conf
     - source: salt://deployment-manager/templates/dm-application-summary.conf.tpl
-{% elif grains['os'] in ('RedHat', 'CentOS') %}
+{% elif grains['os'] in ('RedHat', 'CentOS') or grains['oscodename'] in ('xenial') %}
     - name: /usr/lib/systemd/system/dm-application-summary.service
     - source: salt://deployment-manager/templates/dm-application-summary.service.tpl
 {% endif %}
@@ -112,13 +112,13 @@ dm-application-summary-copy_service:
     - defaults:
         install_dir: {{ install_dir }}
 
-{% if grains['os'] in ('RedHat', 'CentOS') %}
+{% if grains['os'] in ('RedHat', 'CentOS' or grains['oscodename'] in ('xenial')) %}
 deployment-manager-systemctl_reload:
   cmd.run:
     - name: /bin/systemctl daemon-reload; /bin/systemctl enable deployment-manager
 {%- endif %}
 
-{% if grains['os'] in ('RedHat', 'CentOS') %}
+{% if grains['os'] in ('RedHat', 'CentOS') or grains['oscodename'] in ('xenial') %}
 dm-application-summary-systemctl_reload:
   cmd.run:
     - name: /bin/systemctl daemon-reload; /bin/systemctl enable dm-application-summary

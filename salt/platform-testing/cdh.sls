@@ -95,10 +95,10 @@ platform-testing-cdh-install-requirements-cdh:
 
 platform-testing-cdh_service:
   file.managed:
-{% if grains['os'] == 'Ubuntu' %}
+{% if grains['os'] == 'Ubuntu' and grains['osrelease_info'][0] <= 14 %}
     - source: salt://platform-testing/templates/platform-testing-{{ platform_testing_service }}.conf.tpl
     - name: /etc/init/platform-testing-cdh.conf
-{% elif grains['os'] in ('RedHat', 'CentOS') %}
+{% elif grains['os'] in ('RedHat', 'CentOS') or grains['oscodename'] in ('xenial') %}
     - source: salt://platform-testing/templates/platform-testing-{{ platform_testing_service }}.service.tpl
     - name: /usr/lib/systemd/system/platform-testing-cdh.service
 {% endif %}
@@ -118,9 +118,9 @@ platform-testing-cdh-crontab-cdh:
   cron.present:
     - identifier: PLATFORM-TESTING-CDH
     - user: root
-{% if grains['os'] == 'Ubuntu' %}
+{% if grains['os'] == 'Ubuntu' and grains['osrelease_info'][0] <= 14 %}
     - name: /sbin/start platform-testing-cdh
-{% elif grains['os'] in ('RedHat', 'CentOS') %}
+{% elif grains['os'] in ('RedHat', 'CentOS') or grains['oscodename'] in ('xenial') %}
     - name: /bin/systemctl start platform-testing-cdh
 {% endif %}
     - require:
@@ -137,10 +137,10 @@ platform-testing-cdh-install-requirements-cdh_blackbox:
 
 platform-testing-cdh-blackbox_service:
   file.managed:
-{% if grains['os'] == 'Ubuntu' %}
+{% if grains['os'] == 'Ubuntu' and grains['osrelease_info'][0] <= 14 %}
     - source: salt://platform-testing/templates/platform-testing-cdh-blackbox.conf.tpl
     - name: /etc/init/platform-testing-cdh-blackbox.conf
-{% elif grains['os'] in ('RedHat', 'CentOS') %}
+{% elif grains['os'] in ('RedHat', 'CentOS') or grains['oscodename'] in ('xenial') %}
     - source: salt://platform-testing/templates/platform-testing-cdh-blackbox.service.tpl
     - name: /usr/lib/systemd/system/platform-testing-cdh-blackbox.service
 {% endif %}
@@ -160,16 +160,16 @@ platform-testing-cdh-crontab-cdh_blackbox:
   cron.present:
     - identifier: PLATFORM-TESTING-CDH-BLACKBOX
     - user: root
-{% if grains['os'] == 'Ubuntu' %}
+{% if grains['os'] == 'Ubuntu' and grains['osrelease_info'][0] <= 14 %}
     - name: /sbin/start platform-testing-cdh-blackbox
-{% elif grains['os'] in ('RedHat', 'CentOS') %}
+{% elif grains['os'] in ('RedHat', 'CentOS') or grains['oscodename'] in ('xenial') %}
     - name: /bin/systemctl start platform-testing-cdh-blackbox
 {% endif %}
     - require:
       - pip: platform-testing-cdh-install-requirements-cdh_blackbox
       - file: platform-testing-cdh-blackbox_service
 
-{% if grains['os'] in ('RedHat', 'CentOS') %}
+{% if grains['os'] in ('RedHat', 'CentOS') or grains['oscodename'] in ('xenial') %}
 platform-testing-cdh-systemctl_reload:
   cmd.run:
     - name: /bin/systemctl daemon-reload

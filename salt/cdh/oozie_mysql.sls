@@ -12,6 +12,9 @@
 {% set hue_database = salt['pillar.get']('hadoop:hue:database', 'hue') %}
 {% set hue_password = salt['pillar.get']('hadoop:hue:password', 'hue') %}
 
+# mysql_user module is broken with the version of salt used here for mysql 5.7
+# this automation will be handled in a separate step by Ansible
+{% if pillar['mysql-server']['package-name'] not in ('mysql-server-5.7') %}
 include:
   - mysql
 
@@ -28,6 +31,15 @@ cdh-Create oozie MySQL user remote:
     - name: {{ oozie_user }}
     - host: '%'
     - password: {{ oozie_password }}
+    - connection_user: root
+    - connection_pass: {{ mysql_root_password }}
+    
+cdh-Create oozie MySQL user from host:
+  mysql_user.present:
+    - name: {{ oozie_user }}
+    - host: '%'
+    - password: {{ oozie_password }}
+    - host: '{{ grains['nodename'] }}'
     - connection_user: root
     - connection_pass: {{ mysql_root_password }}
     
@@ -52,6 +64,15 @@ cdh-Grant privileges to oozie user from outside:
     - database: {{ oozie_database }}.*
     - user: {{ oozie_user }}
     - host: '%'
+    - connection_user: root
+    - connection_pass: {{ mysql_root_password }}
+
+cdh-Grant privileges to oozie user from host:
+   mysql_grants.present:
+    - grant: all privileges
+    - database: {{ oozie_database }}.*
+    - user: {{ oozie_user }}
+    - host: '{{ grains['nodename'] }}'
     - connection_user: root
     - connection_pass: {{ mysql_root_password }}
 
@@ -152,3 +173,4 @@ cdh-Grant privileges to root user from outside:
     - host: '%'
     - connection_user: root
     - connection_pass: {{ mysql_root_password }}
+{% endif %}

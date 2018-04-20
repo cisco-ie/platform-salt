@@ -107,11 +107,11 @@ elasticsearch-copy_configuration_elasticsearch:
       master_name: {{master_name}}
       list_of_masters: {{ es_master_hostnames }}
 
-{% if grains['os'] == 'Ubuntu' %}
+{% if grains['os'] == 'Ubuntu' and grains['osrelease_info'][0] <= 14 %}
 /etc/init/elasticsearch.conf:
   file.managed:
     - source: salt://elasticsearch-cluster/templates/elasticsearch.init.conf.tpl
-{% elif grains['os'] in ('RedHat', 'CentOS') %}
+{% elif grains['os'] in ('RedHat', 'CentOS') or grains['oscodename'] in ('xenial') %}
 /usr/lib/systemd/system/elasticsearch.service:
   file.managed:
     - source: salt://elasticsearch-cluster/templates/elasticsearch.service.tpl
@@ -127,7 +127,7 @@ elasticsearch-copy_configuration_elasticsearch:
       workdir: {{elasticsearch_workdir }}
       defaultconfig: {{elasticsearch_confdir}}/elasticsearch.yml
 
-{% if grains['os'] in ('RedHat', 'CentOS') %}
+{% if grains['os'] in ('RedHat', 'CentOS') or grains['oscodename'] in ('xenial') %}
 elasticsearch-systemctl_reload:
   cmd.run:
     - name: /bin/systemctl daemon-reload; /bin/systemctl enable elasticsearch
